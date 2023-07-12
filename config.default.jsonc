@@ -47,6 +47,7 @@
     "Azbit",
     "StakeCube",
     "Coinstore"
+    "LBANK"
   ],
 
   /** Exchange to work with. Case insensitive. **/
