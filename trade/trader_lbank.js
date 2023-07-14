@@ -162,7 +162,7 @@ module.exports = (
       let scData;
 
       try {
-        scData = await lbankApiClient.getOrders(pair_.pair.toLowerCase());
+        scData = await lbankApiClient.getOrders(pair_.pairPlain.toLowerCase());
       } catch (err) {
         log.warn(`API request getOpenOrders(${paramString}) of ${utils.getModuleName(module.id)} module failed. ${err}`);
         return undefined;
