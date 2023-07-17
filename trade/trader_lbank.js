@@ -132,7 +132,7 @@ module.exports = (
 
         for (const crypto of userData.balances) {
           result.push({
-            code: crypto.asset,
+            code: crypto.asset.toUpperCase(),
             free: +crypto.free,
             freezed: +crypto.locked,
             total: +crypto.free + +crypto.locked,
