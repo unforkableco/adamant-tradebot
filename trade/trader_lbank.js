@@ -516,8 +516,8 @@ module.exports = (
       try {
 
         return {
-          ask: +orderBook.asks[orderBook.asks.length - 1][0], // assuming asks are sorted in descending order by price. We need the lowest ask
-          bid: +orderBook.bids[0][0], // assuming bids are sorted in descending order by price. We need the highest bid
+          ask: +orderBook.asks[0][0], // assuming asks are sorted in ascending order by price. We need the highest ask
+          bid: +orderBook.bids[0][0], // assuming bids are sorted in descending order by price. We need the lowest bid
           volume: +ticker.vol,
           volumeInCoin2: +ticker.turnover,
           high: +ticker.high,
