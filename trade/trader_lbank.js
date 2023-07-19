@@ -296,6 +296,11 @@ module.exports = (
       let scData;
       
       const openOrders = await this.getOpenOrders(pair);
+
+      if(openOrders.length == 0) {
+        log.log(`Cancelling all ${orderIds.length} orders on ${pair_.pairReadable}. No open orders.`);
+        return true;
+      }
       const orderIds = openOrders.map(order => order.orderId);
 
       try {
