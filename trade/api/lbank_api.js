@@ -271,16 +271,24 @@ module.exports = function () {
      * Returns a list of your currently open orders, their IDs, their market pair, and other relevant order information
      * @param {String} symbol Trading pair in LBANK format, e.g., btc_usdt
      * @param {Number} limit Number of records to return. Default is 100.
+     * @param {String} status Order status filter
+     * -1 ：Cancelled
+     *  0 ：on trading
+     *  1 ： filled partially
+     *  2 ：Filled totally
+     *  3 ：filled partially and cancelled
+     *  4 ：Cancelling
      * @return {Promise<Object>}
      */
-    getOrders(symbol, limit = 100) {
+    getOrders(symbol, limit = 100, status = '0') {
       const data = {
         symbol,
         current_page: 1,
-        page_length: limit
+        page_length: limit,
+        status
       };
 
-      return protectedRequest('/orders_info_no_deal.do', data, 'post');
+      return protectedRequest('/orders_info_history.do', data, 'post');
     },
 
     /**

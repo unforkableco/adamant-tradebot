@@ -159,20 +159,41 @@ module.exports = (
       const paramString = `pair: ${pair}`;
       const pair_ = formatPairName(pair);
 
-      let scData;
+      let scDataUnfilled,scDataPartial;
+
+      // in the case of lbank we need to fetch both unfilled and partially filled orders and merge them
 
       try {
-        scData = await lbankApiClient.getOrders(pair_.pairPlain.toLowerCase());
+        // fetch both kinds of open orders
+        scDataUnfilled = await lbankApiClient.getOrders(pair_.pairPlain.toLowerCase(), 200);
+        scDataPartial = await lbankApiClient.getOrders(pair_.pairPlain.toLowerCase(), 200, "1");
       } catch (err) {
         log.warn(`API request getOpenOrders(${paramString}) of ${utils.getModuleName(module.id)} module failed. ${err}`);
         return undefined;
       }
 
-      if(!scData.result || scData.error_code != 0) {
-        log.warn(`API request getOpenOrders(${paramString}) of ${utils.getModuleName(module.id)} module failed. ${scData.error_code}`);
+      if(!scDataUnfilled.result || scDataUnfilled.error_code != 0) {
+        log.warn(`API request getOpenOrders(${paramString}) of ${utils.getModuleName(module.id)} module failed. ${scDataUnfilled.error_code}`);
         return undefined;
       }
-      const orders = scData.data.orders;
+      if(!scDataPartial.result || scDataPartial.error_code != 0) {
+        log.warn(`API request getOpenOrders(${paramString}) of ${utils.getModuleName(module.id)} module failed. ${scDataPartial.error_code}`);
+        return undefined;
+      }
+      const ordersUnfilled = scDataUnfilled.data.orders;
+      const ordersPartial = scDataPartial.data.orders;
+      let orders;
+      // concatenate both arrays if defined, in case no orders, the member order is undefined
+      if(!ordersPartial) {
+        // only unfilled orders
+        orders = ordersUnfilled;
+      } else if(ordersUnfilled) {
+        // both arrays are defined
+        orders = ordersUnfilled.concat(ordersPartial);
+      } else {
+        // only partially filled orders
+        orders = ordersPartial;
+      }
 
       try {
         const result = [];
@@ -184,8 +205,9 @@ module.exports = (
           const pair = deformatPairName(order.symbol);
 
           const amountLeft = +order.amount - +order.deal_amount;
-
+          // no need to process those since we are filtering them out already
           // if([-1,2,3,4].includes(order.status)) {
+          //   console.log("removing order", order.order_id, order.status)
           //   return; // skip cancelled and filled orders
           // }
 
