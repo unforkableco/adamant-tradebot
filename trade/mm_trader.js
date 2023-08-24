@@ -37,16 +37,33 @@ module.exports = {
 
   async iteration() {
     const interval = setPause();
+    const pairObj = orderUtils.parseMarket(config.pair);
+    const coin1Decimals = pairObj.coin1Decimals;
+    const coin2Decimals = pairObj.coin2Decimals;
+
+    // First, get exchange 24h stats on pair: volume, low, high, spread
+    const exchangeRates = await traderapi.getRates(pairObj.pair);
+    const volumeCoin1 = exchangeRates.volume.toFixed(coin1Decimals);
+    const volumeCoin2 = exchangeRates.volumeInCoin2.toFixed(coin2Decimals);
+
+    const targetVolumeCoin1 = tradeParams.mm_targetVolumeCoin1;
+    const targetVolumeCoin2 = tradeParams.mm_targetVolumeCoin2;
+
+    const volumeTargetReached = (targetVolumeCoin1 > 0 && volumeCoin1 >= targetVolumeCoin1)
+    || (targetVolumeCoin2 > 0 && volumeCoin2 >= targetVolumeCoin2);
     if (
       interval &&
       tradeParams.mm_isActive
     ) {
-      if (isPreviousIterationFinished) {
+      if (isPreviousIterationFinished && !volumeTargetReached) {
         isPreviousIterationFinished = false;
         await this.executeMmOrder();
         isPreviousIterationFinished = true;
       } else {
-        log.warn(`Market-making: Postponing iteration of the market-maker for ${interval} ms. Previous iteration is in progress yet.`);
+        if(!volumeTargetReached)
+          log.warn(`Market-making: Postponing iteration of the market-maker for ${interval} ms. Previous iteration is in progress yet.`);
+        else
+          log.warn(`Market-making: Postponing iteration of the market-maker for ${interval} ms. Target volume reached.`);
       }
       setTimeout(() => {
         this.iteration();
