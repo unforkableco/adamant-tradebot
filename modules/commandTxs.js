@@ -843,6 +843,61 @@ function amount(param) {
   };
 }
 
+function volume(params) {
+  console.log(params);
+  const coin1 = params[1].toUpperCase();
+  const coin2 = params[3].toUpperCase();
+  if (
+    !coin1 || !coin2 || coin1 === coin2 ||
+    (![config.coin1, config.coin2].includes(coin1)) || (![config.coin1, config.coin2].includes(coin2))
+  ) {
+    return {
+      msgNotify: '',
+      msgSendBack: `Incorrect volume coins. Config is set to trade ${config.pair} pair. Example: */volume 0 ${config.coin1} 50000 ${config.coin2}*.`,
+      notifyType: 'log',
+    };
+  }
+
+  const coin1Amount = +params[0];
+  if (!utils.isPositiveOrZeroNumber(coin1Amount)) {
+    return {
+      msgNotify: '',
+      msgSendBack: `Incorrect ${coin1} amount: ${coin1Amount}. Example: */volume 0 ${config.coin1} 50000 ${config.coin2}*.`,
+      notifyType: 'log',
+    };
+  }
+
+  const coin2Amount = +params[2];
+  if (!utils.isPositiveOrZeroNumber(coin2Amount)) {
+    return {
+      msgNotify: '',
+      msgSendBack: `Incorrect ${coin2} amount: ${coin2Amount}. Example: */volume 0 ${config.coin1} 50000 ${config.coin2}*.`,
+      notifyType: 'log',
+    };
+  }
+
+  tradeParams.mm_targetVolumeCoin1 = coin1Amount;
+  tradeParams.mm_targetVolumeCoin2 = coin2Amount;
+
+  let infoString = ` to pause trading when reaching a 24 hours volume of`;
+
+  if(coin1Amount > 0 && coin2Amount > 0) {
+    infoString += ` ${coin1Amount} ${config.coin1} or ${coin2Amount} ${config.coin2} for ${config.pair} pair.`;
+  } else if(coin1Amount > 0) {
+    infoString += ` ${coin1Amount} ${config.coin1}`;
+  } else {
+    infoString += ` ${coin2Amount} ${config.coin2}`;
+  }
+
+  infoString += ` for ${config.pair} pair.`;
+
+  return {
+    msgNotify: `${config.notifyName} is set ${infoString}`,
+    msgSendBack: `Set ${infoString}`,
+    notifyType: 'log',
+  };
+}
+
 function interval(param) {
   const val = (param[0] || '').trim();
   if (!val || !val.length || (val.indexOf('-') === -1)) {
@@ -2349,6 +2404,7 @@ const commands = {
   deposit,
   make,
   y,
+  volume,
   saveConfig: utils.saveConfig,
 };
 

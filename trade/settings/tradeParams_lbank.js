@@ -23,4 +23,6 @@ module.exports = {
   'mm_priceWatcherSource': '#',
   'mm_priceWatcherSourcePolicy': 'smart',
   'mm_priceWatcherAction': 'fill',
+  'mm_targetVolumeCoin1': 0,
+  'mm_targetVolumeCoin2': 0
 };
