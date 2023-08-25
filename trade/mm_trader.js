@@ -176,7 +176,7 @@ module.exports = {
           order2 = await takerApi.placeOrder(type, config.pair, price, coin1Amount, 1, null);
           if (order2 && order2.orderId) {
             output = `${type} ${coin1Amount.toFixed(coin1Decimals)} ${config.coin1} for ${coin2Amount.toFixed(coin2Decimals)} ${config.coin2} at ${price.toFixed(coin2Decimals)} ${config.coin2}`;
-            log.info(`Market-making: Successfully executed mm-order to ${output}. Action: executeInSpread.`);
+            log.info(`Market-making: Successfully executed mm-order ${order1.orderId} and ${order2.orderId} to ${output}. Action: executeInSpread.`);
             order.update({
               isProcessed: true,
               isExecuted: true,
@@ -231,7 +231,7 @@ module.exports = {
           await order.save();
 
           output = `${type} ${coin1Amount.toFixed(coin1Decimals)} ${config.coin1} for ${coin2Amount.toFixed(coin2Decimals)} ${config.coin2} at ${price.toFixed(coin2Decimals)} ${config.coin2}`;
-          log.info(`Market-making: Successfully executed mm-order to ${output}. Action: executeInOrderBook.`);
+          log.info(`Market-making: Successfully executed mm-order ${order1.orderId} to ${output}. Action: executeInOrderBook.`);
 
           const reasonToClose = 'Make sure order1 (maker) matched and filled for executeInOrderBook mm-trade';
           await orderCollector.clearOrderById(
