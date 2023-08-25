@@ -767,7 +767,6 @@ function amount(param) {
 }
 
 function volume(params) {
-  console.log(params);
   const coin1 = params[1].toUpperCase();
   const coin2 = params[3].toUpperCase();
   if (
