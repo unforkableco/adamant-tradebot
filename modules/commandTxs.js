@@ -1747,6 +1747,17 @@ async function getOrdersInfo(accountNo = 0, tx = {}, pair) {
 
     ordersByType.openOrdersCount = openOrders.length;
     ordersByType.unkLength = openOrders.length - ordersByType['all'].allOrders.length;
+
+    if(ordersByType.unkLength > 0) {
+      // get all open orders ids
+      const openOrdersIds = openOrders.map((order) => order.orderId);
+      // get all known orders ids
+      const knownOrdersIds = ordersByType['all'].allOrders.map((order) => order._id);
+
+      const difference = openOrdersIds.filter(x => !knownOrdersIds.includes(x));
+      // concatenate array of ids into string
+      ordersByType.unkString = difference.join(', ');
+    }
     if (previousOrders?.[accountNo]?.[tx.senderId]?.[pairObj?.pair]?.unkLength) {
       diff = ordersByType.unkLength - previousOrders[accountNo][tx.senderId][pairObj.pair].unkLength;
       sign = diff > 0 ? '+' : '−';
@@ -1789,7 +1800,7 @@ async function getOrdersInfo(accountNo = 0, tx = {}, pair) {
     output += '\n\n' + `No open orders in my database.`;
   }
 
-  output += `\n\nOrders which are not in my database (Unknown orders): ${ordersByType.unkLength}${diffStringUnknownOrdersCount}.`;
+  output += `\n\nOrders which are not in my database (Unknown orders): ${ordersByType.unkLength}${diffStringUnknownOrdersCount}. Ids: ${ordersByType.unkString}.`;
 
   previousOrders[accountNo][tx.senderId] = {};
   previousOrders[accountNo][tx.senderId][pairObj.pair] = ordersByType;
